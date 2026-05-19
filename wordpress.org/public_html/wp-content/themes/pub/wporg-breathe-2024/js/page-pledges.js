@@ -155,7 +155,7 @@
 		// the sponsorship state. CSS-only chips (sponsorship) re-route through
 		// our click handler and don't need rewriting here.
 		var carryLinks = document.querySelectorAll(
-			'a.pledges-chip[data-filter="window"], .pledges-inactive-toggle a[href]'
+			'a.pledges-chip[data-filter="window"], .pledges-inactive-toggle a[href], .pledges-empty-extra a[href]'
 		);
 		carryLinks.forEach( function ( link ) {
 			try {
@@ -216,11 +216,18 @@
 		} );
 
 	/**
-	 * Empty-state reset.
+	 * Empty-state reset. Rendered as an anchor pointing at the cleared-filter URL
+	 * so JS-disabled visitors get a working escape hatch; intercept here for the
+	 * instant in-place re-filter when JS is available. Modifier clicks fall
+	 * through so "open in new tab" still produces a shareable URL.
 	 */
-	var resetBtn = document.querySelector( '.pledges-empty-reset' );
-	if ( resetBtn ) {
-		resetBtn.addEventListener( 'click', function () {
+	var resetLink = document.querySelector( '.pledges-empty-reset' );
+	if ( resetLink ) {
+		resetLink.addEventListener( 'click', function ( e ) {
+			if ( e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey ) {
+				return;
+			}
+			e.preventDefault();
 			setSponsorship( 'all' );
 		} );
 	}
